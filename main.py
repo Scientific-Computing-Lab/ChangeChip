@@ -4,7 +4,7 @@ import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 import cv2
 import time
-from PCA_Kmeans import compute_change_map, find_group_of_accepted_classes, draw_combination_on_transparent_input_image
+from PCA_Kmeans import compute_change_map, find_group_of_accepted_classes_DBSCAN, draw_combination_on_transparent_input_image
 import global_variables
 import os
 import argparse
@@ -25,8 +25,6 @@ def main(output_dir,input_path,reference_path,n,window_size, pca_dim_gray, pca_d
     :param use_homography: true to enable SIFT homography (always recommended)
     :param resize_factor: scale the input images, usually with factor smaller than 1 for faster results
     :param save_extra_stuff: save diagnostics and extra results, usually for debugging
-    :param mse_m: the number of clusters to cluster all the n classes of the PCA-kmeans algorithm according to the MSE values
-    :param mse_k: the number of clusters to discard in the mse heuristic postprocessing stage
     :return: the results are saved in output_dir
     '''
     global_variables.init(output_dir, save_extra_stuff) #setting global variables
@@ -104,7 +102,7 @@ def main(output_dir,input_path,reference_path,n,window_size, pca_dim_gray, pca_d
     b_channel, g_channel, r_channel = cv2.split(input_image)
     alpha_channel = np.ones(b_channel.shape, dtype=b_channel.dtype) * 255
     alpha_channel[:, :] = 50
-    groups = find_group_of_accepted_classes(mse_array,mse_k, mse_n)
+    groups = find_group_of_accepted_classes_DBSCAN(mse_array)
     for group in groups:
         transparent_input_image = cv2.merge((b_channel, g_channel, r_channel, alpha_channel))
         result = draw_combination_on_transparent_input_image(mse_array, clustering, group, transparent_input_image)
@@ -158,12 +156,6 @@ if __name__ == '__main__':
                         dest='save_extra_stuff',
                         help='save diagnostics and extra results, usually for debugging',
                         default=False, action='store_true')
-    parser.add_argument('-mse_m',
-                        dest='mse_m',
-                        help='the number of clusters to cluster all the classes of the PCA-kmeans algorithm according to the MSE values')
-    parser.add_argument('-mse_k',
-                        dest='mse_k',
-                        help='the number of clusters to discard in the mse postprocessing stage')
     args = parser.parse_args()
     main(args.output_dir, args.input_path, args.reference_path, bool(args.read_pre_processing), int(args.n), int(args.window_size),
          int(args.pca_dim_gray), int(args.pca_dim_rgb), bool(args.cut), bool(args.lighting_fix), bool(args.use_homography).

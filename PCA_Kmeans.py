@@ -1,13 +1,10 @@
 import numpy as np
 from numpy import savetxt
-from matplotlib import pyplot as plt
 from scipy.misc import imread, imsave, imresize
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
-from collections import Counter
 from skimage import color
-import seaborn as sns
 import global_variables
 import cv2
 import matplotlib.pyplot as plt
@@ -183,28 +180,38 @@ def find_groups(MSE_array, size_array, n, problem_size):
     return results_groups
 
 #selects the classes to be shown to the user as 'changes'.
-#this selection is done by an MSE heuristic using kmeans clustering, to seperate the highest mse-valued classes from the others.
-#m is the number of classes to cluster all the n classes we have
-#k is the number of lowest-mse clusters of classes to discard (k<m).
-def find_group_of_accepted_classes(MSE_array, k, m):
-    kmeans = KMeans(n_clusters=m).fit(np.array(MSE_array).reshape(-1,1))
-    classes = [[] for i in range(m)]
-    centers = [0 for i in range(m)]
+#this selection is done by an MSE heuristic using DBSCAN clustering, to seperate the highest mse-valued classes from the others.
+#the eps density parameter of DBSCAN might differ from system to system
+def find_group_of_accepted_classes_DBSCAN(MSE_array):
+    print(MSE_array)
+    clustering = DBSCAN(eps=0.02, min_samples=1).fit(np.array(MSE_array).reshape(-1,1))
+    number_of_clusters = len(set(clustering.labels_))
+    print(clustering.labels_)
+    classes = [[] for i in range(number_of_clusters)]
+    centers = [0 for i in range(number_of_clusters)]
     for i in range(len(MSE_array)):
-        centers[kmeans.labels_[i]] += MSE_array[i]
-        classes[kmeans.labels_[i]].append(i)
-    centers = [centers[i]/len(classes[i]) for i in range(m)]
-    indices_of_sorted_centers = [i[0] for i in sorted(enumerate(centers), key=lambda x: x[1])] #get indices of "centers" by increasing order of values
-    accepted_classes = [i for i in range(len(MSE_array))]
-    for i in range(0,k):
-        accepted_classes = list(set(accepted_classes).difference(set(classes[indices_of_sorted_centers[i]])))
+        centers[clustering.labels_[i]] += MSE_array[i]
+        classes[clustering.labels_[i]].append(i)
+
+    centers = [centers[i]/len(classes[i]) for i in range(number_of_clusters)]
+    min_class = centers.index(min(centers))
+    accepted_classes = []
+    for i in range(len(MSE_array)):
+        if clustering.labels_[i] != min_class:
+            accepted_classes.append(i)
     plt.figure()
     plt.xlabel('Index')
     plt.ylabel('MSE')
     plt.scatter(range(len(MSE_array)), MSE_array, c="red")
+    print(accepted_classes)
+    print(np.array(MSE_array)[np.array(accepted_classes)])
     plt.scatter(accepted_classes[:], np.array(MSE_array)[np.array(accepted_classes)], c="blue")
     plt.title('K Mean Classification')
     plt.savefig(global_variables.output_dir+"/mse.png")
+
+    #save output for later evaluation
+    savetxt(global_variables.output_dir + '/accepted_classes.csv', accepted_classes, delimiter=',')
+    return [accepted_classes]
 
     #save output for later evaluation
     savetxt(global_variables.output_dir + '/accepted_classes.csv', accepted_classes, delimiter=',')
