@@ -9,7 +9,7 @@ The workflow of *ChangeChip* is presented as follows:
 
 <img align="center" width="250" height="" src="workflow.PNG">
 
-## Requerments:
+## Requirements:
 - Download the DEXTR model (for the optinal cropping stage):
 ```
 cd DEXTR/models/
@@ -17,7 +17,9 @@ chmod +x download_dextr_model.sh
 ./download_dextr_model.sh
 cd ../..
 ```
-- Conda Requerments:
+- Conda Requirements:
+
+Create a new conda environment with the following packages.
 ```
 conda install pytorch torchvision -c pytorch
 conda install numpy scipy matplotlib
@@ -25,7 +27,7 @@ conda install opencv pillow scikit-learn scikit-image
 conda install keras tensorflow
 ```
 ## Running:
-Run the next command with your spesific directory and images paths, and change the values of the system parameters, if needed.
+- Run the following command under the conda environment with your spesific directory and images paths, and change the values of the system parameters, if needed.
 ```
 python main.py -output_dir OUTPUT_DIR 
 -input_path INPUT_IMAGE.JPG 
