@@ -10,7 +10,7 @@ import os
 import argparse
 
 def main(output_dir,input_path,reference_path,n,window_size, pca_dim_gray, pca_dim_rgb,
-         cut, lighting_fix, use_homography, resize_factor, save_extra_stuff,mse_n, mse_k):
+         cut, lighting_fix, use_homography, resize_factor, save_extra_stuff):
     '''
 
     :param output_dir: destination directory for the output
@@ -157,6 +157,6 @@ if __name__ == '__main__':
                         help='save diagnostics and extra results, usually for debugging',
                         default=False, action='store_true')
     args = parser.parse_args()
-    main(args.output_dir, args.input_path, args.reference_path, bool(args.read_pre_processing), int(args.n), int(args.window_size),
-         int(args.pca_dim_gray), int(args.pca_dim_rgb), bool(args.cut), bool(args.lighting_fix), bool(args.use_homography).
-         float(args.resize_factor), bool(args.save_extra_stuff), int(args.mse_n), int(args.mse_k))
+    main(args.output_dir, args.input_path, args.reference_path, int(args.n), int(args.window_size),
+         int(args.pca_dim_gray), int(args.pca_dim_rgb), bool(args.cut), bool(args.lighting_fix), bool(args.use_homography),
+         float(args.resize_factor), bool(args.save_extra_stuff))

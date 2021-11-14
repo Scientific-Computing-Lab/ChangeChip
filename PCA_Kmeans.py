@@ -8,6 +8,8 @@ from skimage import color
 import global_variables
 import cv2
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 def get_descriptors (image1, image2, window_size, pca_dim_gray, pca_dim_rgb):
 
     #################################################   grayscale-diff (abs)
@@ -103,13 +105,18 @@ def compute_change_map(image1, image2, window_size=5, clusters=16, pca_dim_gray=
     sorted_indexes = np.argsort(mse_array)
     colors_array = [plt.cm.jet(float(np.argwhere(sorted_indexes == class_))/(clusters-1)) for class_ in range(clusters)]
     colored_change_map = np.zeros((change_map.shape[0], change_map.shape[1], 3), np.uint8)
+    palette_colored_change_map = np.zeros((change_map.shape[0], change_map.shape[1], 3), np.uint8)
+    palette = sns.color_palette("Paired", clusters)
     for i in range(change_map.shape[0]):
         for j in range(change_map.shape[1]):
             colored_change_map[i, j]= (255*colors_array[change_map[i,j]][0],255*colors_array[change_map[i,j]][1],255*colors_array[change_map[i,j]][2])
+            palette_colored_change_map[i, j] = [255*palette[change_map[i, j]][0],255*palette[change_map[i, j]][1],255*palette[change_map[i, j]][2]]
 
     if (global_variables.save_extra_stuff):
         imsave(global_variables.output_dir+ '/window_size_'+str(window_size)+'_pca_dim_gray'+str(pca_dim_gray)+'_pca_dim_rgb'
                +str(pca_dim_rgb)+'_clusters_'+  str(clusters) + '.jpg', colored_change_map)
+        imsave(global_variables.output_dir + '/PALETTE_window_size_' + str(window_size) + '_pca_dim_gray' + str(pca_dim_gray) + '_pca_dim_rgb'
+               + str(pca_dim_rgb) + '_clusters_' + str(clusters) + '.jpg', palette_colored_change_map)
 
     #Saving Output for later evaluation
     savetxt(global_variables.output_dir+ '/clustering_data.csv', change_map, delimiter=',')
@@ -186,7 +193,10 @@ def find_group_of_accepted_classes_DBSCAN(MSE_array):
     print(MSE_array)
     clustering = DBSCAN(eps=0.02, min_samples=1).fit(np.array(MSE_array).reshape(-1,1))
     number_of_clusters = len(set(clustering.labels_))
-    print(clustering.labels_)
+    if number_of_clusters == 1:
+        print("No significant changes are detected.")
+        exit(0)
+    #print(clustering.labels_)
     classes = [[] for i in range(number_of_clusters)]
     centers = [0 for i in range(number_of_clusters)]
     for i in range(len(MSE_array)):

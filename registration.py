@@ -1,7 +1,6 @@
 
 import numpy as np
 import cv2
-from matplotlib import pyplot as plt
 import global_variables
 
 def homography(cut, img1, img2, mask_img):
