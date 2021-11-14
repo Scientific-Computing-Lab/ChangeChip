@@ -41,6 +41,7 @@ python main.py -output_dir OUTPUT_DIR
 -use_homography
 -save_extra_stuff
 ```
+You can either run ```./run_exmaple.sh```.
 # CD-PCB
 As part of this work, a small dataset of 20 pairs of PCBs images was created, with annotated changes between them. This dataset is proposed for evaluation of change detection algorithms in the PCB Inspection field. The dataset is available [here](https://drive.google.com/file/d/1b1GFuKS88nKaH-Nfx2XmlhwulUxMwwBA/view?usp=sharing).
 
