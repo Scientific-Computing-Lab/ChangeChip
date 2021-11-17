@@ -19,7 +19,10 @@ cd ../..
 ```
 - Conda Requirements:
 
-Create a new conda environment with the following packages.
+Building environment from ```yml``` file (recommended): \
+```conda env create --name envname --file=conda_changechip.yml```
+
+Or, create a new conda environment with the following packages:
 ```
 conda install pytorch torchvision -c pytorch
 conda install numpy scipy matplotlib
